@@ -1,15 +1,15 @@
-# GPCR
-Official repository for "A ligand image-based and structure-based representation deep learning framework identifies candidate therapeutics for treating chronic pain by targeting GPCRs"
+# LISA-CPI
+Official repository for ***A deep learning framework combining molecular image and protein structural representation identifies candidate drugs for chronic pain***
 
 ## Initial Setup
 
-This code has been tested on Python versions from 3.7 to 3.10 and PyTorch versions from 1.12 to the current latest version (2.0.1). Any Python version newer than 3.11 or older than 3.6 is not supported. Please adjust the installation commands according to your machine and preferences. 
+This code has been tested on Python versions from 3.7 to 3.10 and PyTorch versions from 1.12 to the current latest version (2.1.1). Any Python version newer than 3.11 or older than 3.6 is not supported. Please adjust the installation commands according to your machine and preferences. 
 
 Install Anaconda/Miniconda, create a conda environment, and activate the conda environment
 
 ```bash
-conda create -n GPCR python=3.9 -y \
-    && conda activate GPCR
+conda create -n lisa-cpi python=3.10 -y \
+    && conda activate lisa-cpi
 ```
 
 Install packages: 
@@ -17,24 +17,22 @@ Install packages:
 if you have nVidia GPUs that support CUDA on your machine:
 
 ```bash
-conda install pytorch torchvision pytorch-cuda=11.7 -c pytorch -c nvidia -y
-python -m pip install pandas scikit-learn tqdm rdkit==2022.03.3 openpyxl xlrd tensorboardx pyyaml tensorboard matplotlib seaborn
-python -m pip install grad-cam
+conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia -y
+python -m pip install -r requirements.txt
 ```
 
 otherwise:
 
 ```bash
 conda install pytorch torchvision cpuonly -c pytorch -y
-python -m pip install pandas scikit-learn tqdm rdkit==2022.03.3 openpyxl xlrd tensorboardx pyyaml tensorboard matplotlib seaborn
-python -m pip install grad-cam
+python -m pip install -r requirements.txt
 ```
 
 Clone the repo to your machine
 
 ```bash
-git clone https://github.com/yuxin212/GPCR-public.git
-cd GPCR-public
+git clone https://github.com/yuxin212/LISA-CPI.git
+cd LISA-CPI
 ```
 
 Install 
@@ -45,16 +43,10 @@ python -m pip install -e .
 
 If you want to use AlphaFold2 to generate intermediate representations by your self: **Please note: AlphaFold2 can only run in Linux systems**
 
-Install dependencies first:
-
-```bash
-python -m pip install absl-py==1.0.0 docker==5.0.0
-```
-
 Clone the modified AlphaFold2 repo:
 
 ```bash
-https://github.com/yuxin212/alphafold.git
+git clone https://github.com/yuxin212/alphafold.git
 cd alphafold
 ```
 
@@ -68,20 +60,20 @@ Our dataset consists of 2 parts: 1) Ligand images generated using RDKit and 2) G
 
 We provide a script to download all the data and final models used in our paper. `cd` into this repository and make sure you have `wget` installed. 
 
-*   Download all 4 datasets: Top-20 GPCR dataset, pain-related GPCR dataset, FDA-approved drugs dataset, and 380 gut-metabolites dataset: 
+*   Download all 4 processed datasets: Top-20 GPCR dataset, pain-related GPCR dataset, FDA-approved drugs dataset, and 380 gut-metabolites dataset: 
 
     ```bash
-    scripts/download_data.sh
+    ./scripts/download_data.sh
     ```
 
 *   If you wish to download only one or some of the datasets or final trained model, you can use one or more of the following scripts:
 
     ```bash
-    scripts/download_top20.sh # download Top-20 GPCR dataset only
-    scripts/download_pain.sh # download pain-related GPCR dataset only
-    scripts/download_fda.sh # download FDA-approved drugs dataset only
-    scripts/download_gut.sh # download 380 gut-metabolites dataset only
-    scripts/download_models.sh # download final trained models only
+    ./scripts/download_top20.sh # download Top-20 GPCR dataset only
+    ./scripts/download_pain.sh # download pain-related GPCR dataset only
+    ./scripts/download_fda.sh # download FDA-approved drugs dataset only
+    ./scripts/download_gut.sh # download 380 gut-metabolites dataset only
+    ./scripts/download_models.sh # download final trained models only
     ```
 
 The `download_data.sh` will also download needed GPCR representations generated using AlphaFold2 and the final models used in our paper. The final directory structure of the downloaded data should look like this:
@@ -113,7 +105,7 @@ If you wish to download and process the raw data by yourself, you can follow the
 1. Download the raw data:
 
     ```bash
-    scripts/download_raw_data.sh
+    ./scripts/download_raw_data.sh
     ```
 
     All the raw ligand data will be downloaded to `data/original` and `fasta` files of GPCRs will be downloaded to `alphafold/fastas`. 
@@ -153,7 +145,7 @@ If you wish to download and process the raw data by yourself, you can follow the
     export FILE_NAME_COL=inchi_key # specify the column name of file name in the raw data
 
     python scripts/prepare_dataset.py \
-        --dataset data/raw/${DATASET}_raw.csv \
+        --dataset data/original/${DATASET}_raw.csv \
         --gpcr-col ${GPCR_COL} \
         --smiles-col ${SMILES_COL} \
         --label-col ${LABEL_COL} \
@@ -204,14 +196,16 @@ The inference will output one file `per_sample_result.json` in the `--out-dir` d
 
 Running the following command for training and evaluating the model without cross-validation:
 
+If you generate dataset from donwloaded raw data, please specify annotation files for training set and test set in the config file accordingly. 
+
 ```bash
 # training
 python scripts/train.py \
-    --cfg configs/train/<DATASET>.yml 
+    --cfg configs/train/${DATASET}.yml 
 
 # evaluating
 python scripts/train.py \
-    --cfg configs/eval/<DATASET>.yml
+    --cfg configs/eval/${DATASET}.yml
 ```
 
 Running the following command for training and evaluating the model with cross-validation:

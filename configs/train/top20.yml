@@ -13,7 +13,7 @@ train:
   smooth: 4
 test:
   batch_size: 256
-  anno: data/lignads/top20/anno/GPCR_test.json
+  anno: data/ligands/top20/anno/GPCR_test.json
   smooth: 4
 model:
   base_model:

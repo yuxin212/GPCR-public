@@ -11,6 +11,8 @@ if ! command -v wget &> /dev/null ; then
     exit 1
 fi
 
+mkdir -p trained_models/train/original_models
+
 echo "Downloading final models..."
 wget -O trained_models/train/original_models/pain.pth https://zenodo.org/record/8150913/files/pain.pth?download=1
 wget -O trained_models/train/original_models/top20.pth https://zenodo.org/record/8150913/files/top20.pth?download=1

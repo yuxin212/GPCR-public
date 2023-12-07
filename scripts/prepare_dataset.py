@@ -12,6 +12,7 @@ from multiprocessing import Pool
 
 def smiles2img(row, save_path, smiles_col, file_name_col):
     
+    row = row[1]
     smile = row[smiles_col]
     file_name = row[file_name_col]
     mol = Chem.MolFromSmiles(smile)
@@ -62,6 +63,7 @@ def process_with_split_gpcr(data, args):
         test_set = []
 
         X = list(gpcr_data[args.file_name_col].apply(lambda x: os.path.join(gpcr_save_path, '{}.png'.format(x))))
+        y = gpcr_data[args.label_col].tolist()
 
         if args.label_col is None:
             print('No label column provided, exiting...')
@@ -185,6 +187,7 @@ def process_without_split_gpcr(data, args):
     train_set = []
     test_set = []
     X = list(data[args.file_name_col].apply(lambda x: os.path.join(args.save_path, '{}.png'.format(x))))
+    y = data[args.label_col].tolist()
 
     if args.label_col is None:
         print('No label column provided, exiting...')
